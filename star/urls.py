@@ -14,4 +14,7 @@ urlpatterns = [
     # Знаменитости по виду деятельности
     path('industry/<slug:slug>/', views.stars_by_category, name='stars_by_category'),
     path('add/', views.add_star, name='add_star'),  # Добавление знаменитости
+
+    path('sitemap/', views.sitemap, name='sitemap'), # Карта сайта
+    path('sitemap/<str:letter>/', views.sitemap_letter, name='sitemap_by_letter'), # Карта сайта
 ]

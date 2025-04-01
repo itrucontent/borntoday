@@ -61,7 +61,7 @@ class Star(models.Model):
     birth_date = models.DateField(verbose_name = "День рождения")  # Дата рождения
     content = models.TextField(verbose_name = "Биография")  # Описание звезды
     photo = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True, null=True, verbose_name="Фотография")
-
+    death_date = models.DateField(blank=True, null=True, verbose_name="Дата смерти")
     is_published = models.BooleanField(default=True)  # Флаг публикации
     time_create = models.DateTimeField(auto_now_add=True)  # Дата создания (автоматически)
     time_update = models.DateTimeField(auto_now=True)  # Дата обновления (автоматически)
@@ -69,14 +69,37 @@ class Star(models.Model):
     def __str__(self):
         return self.name
 
+
+
     def get_age(self):
-        """Вычисляет возраст звезды на основе даты рождения."""
-        today = date.today()
-        age = today.year - self.birth_date.year
-        # Если день рождения еще не наступил в этом году, вычитаем один год
-        if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
-            age -= 1
+        """Вычисляет возраст звезды на основе даты рождения и смерти (если есть)."""
+        if self.death_date:
+            # Если звезда умерла, считаем возраст на момент смерти
+            age = self.death_date.year - self.birth_date.year
+            # Если день рождения еще не наступил в году смерти, вычитаем один год
+            if (self.death_date.month, self.death_date.day) < (self.birth_date.month, self.birth_date.day):
+                age -= 1
+        else:
+            # Для живых звезд считаем текущий возраст
+            today = date.today()
+            age = today.year - self.birth_date.year
+            # Если день рождения еще не наступил в этом году, вычитаем один год
+            if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
+                age -= 1
         return age
+
+    def get_lifespan(self):
+        """Возвращает годы жизни в формате 'YYYY-YYYY' или 'YYYY-настоящее время'."""
+        birth_year = self.birth_date.year
+        if self.death_date:
+            death_year = self.death_date.year
+            return f"{birth_year}-{death_year}"
+        else:
+            return f"{birth_year}-настоящее время"
+
+    def is_alive(self):
+        """Проверяет, жива ли звезда."""
+        return self.death_date is None
 
     def save(self, *args, **kwargs):
         if not self.slug:

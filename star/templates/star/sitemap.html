@@ -1,0 +1,27 @@
+{% extends 'star/base.html' %}
+{% block title %}{{ title }} - Borntoday.ru{% endblock %}
+
+{% block content %}
+<h3>{{ title }}</h3>
+
+<!-- Алфавитная навигация -->
+<div class="mb-4 text-center">
+  {% for char in alphabet %}
+    {% if char in available_letters %}
+      <a href="{% url 'sitemap_by_letter' char|lower %}" class="btn btn-outline-primary mb-1">{{ char }}</a>
+    {% else %}
+      <a href="#" class="btn btn-outline-secondary mb-1 disabled">{{ char }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<ul class="list-group">
+  {% for star in stars %}
+    <li class="list-group-item">
+      <a href="{% url 'star_detail' star.slug %}">{{ star.name }}</a>
+    </li>
+  {% empty %}
+    <li class="list-group-item">Знаменитостей не найдено.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

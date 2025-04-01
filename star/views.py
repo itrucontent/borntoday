@@ -73,17 +73,27 @@ def star_detail(request, slug):
 
 def about(request):
     """
-    Страница «О сайте».
+    Страница «О сайте» со статистикой.
     """
     # Получаем все страны и категории для меню
     countries = Country.objects.all()
     categories = Category.objects.all()
+
+    # Считаем статистику
+    stars_count = Star.objects.filter(is_published=True).count()
+    countries_count = Country.objects.count()
+    categories_count = Category.objects.count()
 
     context = {
         'title': 'О сайте',
         'description': 'Сайт создан в учебных целях. Данные сгенерированы нейросетью.',
         'star_countries': countries,
         'star_categories': categories,
+        'stats': {
+            'stars': stars_count,
+            'countries': countries_count,
+            'categories': categories_count,
+        }
     }
     return render(request, 'star/about.html', context)
 
@@ -152,3 +162,78 @@ def add_star(request):
         'star_categories': categories,
     }
     return render(request, 'star/add-star.html', context)
+
+
+def sitemap(request):
+    """
+    Карта сайта: выводит алфавитный указатель всех знаменитостей.
+    """
+    # Получаем все страны и категории для меню
+    countries = Country.objects.all()
+    categories = Category.objects.all()
+
+    # Получаем все опубликованные звезды
+    stars = Star.objects.filter(is_published=True).order_by('name')
+
+    # Создаем весь русский алфавит
+    russian_alphabet = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ'
+
+    # Собираем буквы, на которые есть знаменитости
+    available_letters = []
+    for letter in russian_alphabet:
+        if Star.objects.filter(
+                is_published=True,
+                name__istartswith=letter
+        ).exists():
+            available_letters.append(letter)
+
+    context = {
+        'title': 'Карта сайта',
+        'stars': stars,
+        'alphabet': russian_alphabet,
+        'available_letters': available_letters,
+        'star_countries': countries,
+        'star_categories': categories,
+    }
+    return render(request, 'star/sitemap.html', context)
+
+
+def sitemap_letter(request, letter):
+    """
+    Вывод знаменитостей, начинающихся на определенную букву.
+    """
+    # Получаем все страны и категории для меню
+    countries = Country.objects.all()
+    categories = Category.objects.all()
+
+    # Весь русский алфавит
+    russian_alphabet = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ'
+
+    # Приводим букву к верхнему регистру для единообразия
+    letter = letter.upper()
+
+    # Фильтруем знаменитостей, начинающихся с указанной буквы
+    letter_stars = Star.objects.filter(
+        is_published=True,
+        name__istartswith=letter
+    ).order_by('name')
+
+    # Собираем буквы, на которые есть знаменитости
+    available_letters = []
+    for l in russian_alphabet:
+        if Star.objects.filter(
+                is_published=True,
+                name__istartswith=l
+        ).exists():
+            available_letters.append(l)
+
+    context = {
+        'title': f'Знаменитости на букву {letter}',
+        'stars': letter_stars,
+        'letter': letter,
+        'alphabet': russian_alphabet,
+        'available_letters': available_letters,
+        'star_countries': countries,
+        'star_categories': categories,
+    }
+    return render(request, 'star/sitemap_letter.html', context)

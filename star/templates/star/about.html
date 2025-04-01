@@ -3,7 +3,27 @@
 
 {% block content %}
 <h3>О сайте</h3>
-<p>
-{{ description  }}
-<p>
+<p>{{ description }}</p>
+
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        Статистика сайта
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <h4>{{ stats.stars }}</h4>
+                <p>Знаменитостей в базе</p>
+            </div>
+            <div class="col-md-4">
+                <h4>{{ stats.countries }}</h4>
+                <p>Стран</p>
+            </div>
+            <div class="col-md-4">
+                <h4>{{ stats.categories }}</h4>
+                <p>Видов деятельности</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
